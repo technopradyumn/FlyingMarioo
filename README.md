@@ -11,9 +11,6 @@ Flying Marioo is an exciting game inspired by the classic Flappy Bird, but with 
 - **Jetpack Compose**: UI is built using Jetpack Compose for a modern and declarative approach.
 - **Clean Architecture**: Follows Clean Architecture with MVVM pattern for a clean, maintainable, and testable codebase.
 
-## Screenshots
-
-
 
 ## Architecture
 
