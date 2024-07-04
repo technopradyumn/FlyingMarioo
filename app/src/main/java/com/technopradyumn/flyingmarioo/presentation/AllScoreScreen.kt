@@ -3,6 +3,8 @@ package com.technopradyumn.flyingmarioo.presentation
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
@@ -101,8 +103,8 @@ fun AllScoreScreen(navHostController: NavHostController) {
                     }
                     androidx.compose.animation.AnimatedVisibility(
                         visible = itemAppeared,
-                        enter = slideInVertically(initialOffsetY = { it * 2 }) + fadeIn(),
-                        exit = slideOutVertically(targetOffsetY = { it * 2 }) + fadeOut()
+                        enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(),
+                        exit = slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
                     ) {
                         Crossfade(targetState = score) { currentScore ->
                             ScoreItemWithAnimation(
@@ -137,7 +139,7 @@ fun ScoreItemWithAnimation(
     }
 
     val textColor = when (score.scoreValue) {
-        highestScore, secondHighestScore,thirdHighestScore -> Color.White
+        highestScore, secondHighestScore, thirdHighestScore -> Color.White
         else -> Color.Black
     }
 

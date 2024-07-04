@@ -12,7 +12,7 @@ data class Score(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "score") val scoreValue: Int,
     @ColumnInfo(name = "game_over_time") val gameOverTime: String = SimpleDateFormat(
-        "HH:mm:ss dd-MM-yyyy ",
+        "HH:mm:ss dd-MM-yyyy",
         Locale.getDefault()
     ).format(Date())
 )

@@ -9,6 +9,7 @@ import com.technopradyumn.flyingmarioo.data.ScoreDao
 
 @Database(entities = [Score::class], version = 1)
 abstract class ScoreDatabase : RoomDatabase() {
+
     abstract fun scoreDao(): ScoreDao
 
     companion object {

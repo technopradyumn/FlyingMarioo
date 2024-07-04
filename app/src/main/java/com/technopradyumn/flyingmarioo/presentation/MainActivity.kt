@@ -46,6 +46,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.technopradyumn.flyingmarioo.R
 import com.technopradyumn.flyingmarioo.ui.theme.FlyingMariooTheme
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.delay
 
 enum class Screen {

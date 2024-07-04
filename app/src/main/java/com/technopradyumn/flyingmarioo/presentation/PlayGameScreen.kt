@@ -48,25 +48,26 @@ fun PlayGameScreen(
     val mariooY by remember { gameViewModel::mariooY }
     val poles by remember { gameViewModel::poles }
     val gameState by remember { gameViewModel::gameState }
-    val isGameOver by remember { gameViewModel::isGameOver }
     val score by remember { gameViewModel::score }
     var showGameOverDialog by remember { mutableStateOf(false) }
 
-    var isDragging by remember { mutableStateOf(false) }
-    var dragOffset by remember { mutableFloatStateOf(0f) }
-
-    val context = LocalContext.current
-
     LaunchedEffect(gameState) {
-        if (gameState == GameViewModel.GameState.RUNNING) {
-            coroutineScope.launch {
-                while (gameState == GameViewModel.GameState.RUNNING) {
-                    gameViewModel.updateGame()
-                    delay(16L)
+        when (gameState) {
+            GameViewModel.GameState.RUNNING -> {
+                gameViewModel.playBackgroundMusic()
+                coroutineScope.launch {
+                    while (gameState == GameViewModel.GameState.RUNNING) {
+                        gameViewModel.updateGame()
+                        delay(16L)
+                    }
                 }
             }
-        } else if (gameState == GameViewModel.GameState.GAME_OVER) {
-            showGameOverDialog = true
+            GameViewModel.GameState.PAUSED, GameViewModel.GameState.GAME_OVER -> {
+                gameViewModel.pauseBackgroundMusic()
+                if (gameState == GameViewModel.GameState.GAME_OVER) {
+                    showGameOverDialog = true
+                }
+            }
         }
     }
 
@@ -150,6 +151,7 @@ fun PlayGameScreen(
                 dismissButton = {
                     Button(onClick = {
                         navHostController.popBackStack()
+                        gameViewModel.pauseBackgroundMusic()
                         showGameOverDialog = false
                     }) {
                         Text("Quit Game")

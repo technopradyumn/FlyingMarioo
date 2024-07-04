@@ -1,7 +1,6 @@
 package com.technopradyumn.flyingmarioo.presentation
 
 import android.app.Application
-import android.content.Context
 import android.media.MediaPlayer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -12,9 +11,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.technopradyumn.flyingmarioo.R
 import com.technopradyumn.flyingmarioo.data.Score
+import com.technopradyumn.flyingmarioo.data.ScoreRepository
 import com.technopradyumn.flyingmarioo.data.database.ScoreDatabase
-import com.technopradyumn.flyingmarioo.domain.GetScoresUseCase
-import com.technopradyumn.flyingmarioo.domain.InsertScoreUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +24,7 @@ import kotlin.math.min
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
 
-    var mariooY by mutableFloatStateOf(400f)
+    var mariooY by mutableFloatStateOf(300f)
         private set
     var poles by mutableStateOf(listOf<Pole>())
         private set
@@ -38,8 +36,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     private val scoreDao = ScoreDatabase.getDatabase(application).scoreDao()
-    private val getScoresUseCase = GetScoresUseCase(scoreDao)
-    private val insertScoreUseCase = InsertScoreUseCase(scoreDao)
+    private val scoreRepository = ScoreRepository(scoreDao)
 
     private val _scores = MutableStateFlow<List<Score>>(emptyList())
     val scores: StateFlow<List<Score>> = _scores.asStateFlow()
@@ -49,7 +46,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val poleGap = 400f
     private val mariooSize = 72f
-    private val poleWidth = 96f
+    private val poleWidth = 100f
     private val screenWidth = 800f
     private val screenHeight = 800f
     private val poleSpacing = screenWidth / 2
@@ -57,24 +54,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private var backgroundMusicPlayer: MediaPlayer? = null
 
     init {
-        (application as Context)
         resetGame()
         viewModelScope.launch {
             loadScores()
         }
     }
-    fun updateMarioY(newY: Float) {
-        mariooY = newY
-    }
-
-    fun initializeSounds(context: Context) {
-        backgroundMusicPlayer = MediaPlayer.create(context, R.raw.music3).apply {
-            isLooping = true
-        }
-    }
 
     fun playBackgroundMusic() {
         if (gameState == GameState.RUNNING) {
+            if (backgroundMusicPlayer == null) {
+                backgroundMusicPlayer = MediaPlayer.create(getApplication(), R.raw.music2)
+                backgroundMusicPlayer?.isLooping = true
+            }
             backgroundMusicPlayer?.start()
         }
     }
@@ -93,7 +84,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         gameState = GameState.RUNNING
         isGameOver = false
         score = 0
-        playBackgroundMusic()
+        pauseBackgroundMusic()
     }
 
     fun onJump() {
@@ -122,7 +113,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 gameState = GameState.GAME_OVER
                 isGameOver = true
                 stopAllSounds()
-                if (score > 0){
+                if (score > 0) {
                     addScore(score)
                 }
             } else {
@@ -184,7 +175,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun loadScores() {
         viewModelScope.launch {
-            getScoresUseCase().collect {
+            scoreRepository.getAllScores().collect {
                 _scores.value = it
             }
         }
@@ -193,7 +184,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun addScore(score: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val newScore = Score(scoreValue = score)
-            insertScoreUseCase(newScore)
+            scoreRepository.insertScore(newScore)
         }
     }
 
